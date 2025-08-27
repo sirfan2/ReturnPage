@@ -1,0 +1,38 @@
+[
+    {
+        "reason": "Wrong item sent",
+        "description": "The item you received is not what you ordered."
+    },
+    {
+        "reason": "Item damaged",
+        "description": "The item arrived damaged or defective."
+    },
+    {
+        "reason": "Size issue",
+        "description": "The item does not fit as expected."
+    },
+    {
+        "reason": "Changed mind",
+        "description": "You no longer want the item."
+    },
+    {
+        "reason": "Better price elsewhere",
+        "description": "You found the item at a lower price from another retailer."
+    },
+    {
+        "reason": "Item not as described",
+        "description": "The item does not match the description or images provided."
+    },
+    {
+        "reason": "Late delivery",
+        "description": "The item arrived later than the promised delivery date."
+    },
+    {
+        "reason": "Incorrect quantity",
+        "description": "You received a different quantity than what you ordered."
+    },
+    {
+        "reason": "Other",
+        "description": "Any other reason not listed above."
+    }
+]
