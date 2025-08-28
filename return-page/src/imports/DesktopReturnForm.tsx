@@ -149,22 +149,33 @@ function Title() {
 
 function Field() {
   const [orderNumber, setOrderNumber] = useState("");
-  const [orders, setOrders] = useState([]);
-  const [selectedItem, setSelectedItem] = useState("");
+  const [orderValid, setOrderValid] = useState(null);
+  const [checking, setChecking] = useState(false);
+  const [orderDetails, setOrderDetails] = useState(null);
 
-  useEffect(() => {
-    if (orderNumber) {
-      axios.get('http://localhost:8000/orders')
-        .then(response => {
-          // Filter orders by order_id (integer match)
-          const filtered = response.data.orders.filter(order => String(order[0]) === orderNumber);
-          setOrders(filtered);
-        })
-        .catch(error => console.error(error));
-    } else {
-      setOrders([]);
+  const checkOrderNumber = async () => {
+    if(!orderNumber) {
+      setOrderValid(null);
+      setOrderDetails(null);
+      return;
     }
-  }, [orderNumber]);
+
+    setChecking(true);
+    try {
+      const response = await axios.get(`http://localhost:8000/orders/${orderNumber}`);
+      console.log("Fetched order:", response.data); //debug
+      setOrderValid(true);
+      setOrderDetails(response.data);
+    } catch (error:any) {
+      if (error.response && error.response.status === 404) {
+        setOrderValid(false);
+        setOrderDetails(null);
+      }
+      console.error("Error checking order number:", error);
+    } finally {
+      setChecking(false);
+    }
+  };
 
   return (
     <div className="content-stretch flex flex-col gap-0.5 items-start justify-start relative shrink-0 w-full" data-name="Field">
@@ -174,12 +185,24 @@ function Field() {
       <input
         type="text"
         inputMode="numeric"
-        pattern="[0-9]*"
         value={orderNumber}
         onChange={e => setOrderNumber(e.target.value.replace(/[^0-9]/g, ""))}
+        onBlur={checkOrderNumber}
+        onKeyDown={e => { if (e.key === 'Enter') checkOrderNumber(); }}
         placeholder="Enter order number here..."
         style={{ width: "220px", fontSize: "18px", padding: "8px", border: "1px solid #ccc" }}
       />
+      {checking && <span style ={{ color: "#888", fontSize: "14px" }}>Checking...</span>}
+      {orderValid == false && (
+        <span style={{ color: "red", fontSize: "14px" }}>Order number not found. Please try again.</span>
+      )}
+      {orderValid == true && orderDetails && (
+        <div style={{ marginTop: "8px", fontSize: "14px", color: "green" }}>
+          <strong>Order found!</strong><br />
+          Purchase Date: {orderDetails.purchase_date}<br />
+          Items: {orderDetails.items.map((item:any) => item.item_name).join(", ")}
+        </div>
+      )}
     </div>
   );
 }
