@@ -1,10 +1,24 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
-from sqlite3 import Connection, connect
+from typing import List, Optional
+from sqlite3 import connect
 from uuid import uuid4
 
 app = FastAPI()
+
+# Allow CORS for local development
+origins = [
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Get new database connection per request
 def get_db_connection():
@@ -24,9 +38,9 @@ class OrderResponse(BaseModel):
 class ReturnRequest(BaseModel):
     order_id: str
     item_id: str
-    reason: str
-    date: str
-    warehouse_id: str
+    return_reason: str
+    return_date: str
+    warehouse_id: Optional[int] = None
 
 class ReturnResponse(BaseModel):
     return_id: str
@@ -40,14 +54,33 @@ def create_return(request: ReturnRequest):
     return_id = str(uuid4())
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO returns (return_id, order_id, return_reason, return_date, status, warehouse_id) VALUES (?, ?, ?, ?, ?, ?)",
-        (return_id, request.order_id, request.reason, request.date, "Pending", request.warehouse_id)
-    )
-    cursor.commit()
-    label_url = f"http://example.com/labels/{return_id}.pdf"
+
+    try:
+        cursor.execute(
+            """
+            INSERT INTO RETURNS
+            (return_id, order_id, item_id, return_reason, return_date, status, warehouse_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                return_id,
+                request.order_id,
+                request.item_id,
+                request.return_reason,
+                request.return_date,
+                "Pending",
+                request.warehouse_id,
+            )
+        )
+    except Exception as e:
+        print("Error inserting return:", e)
+        raise HTTPException(status_code=500, detail="Error creating return request")
+
+    conn.commit()
     cursor.close()
     conn.close()
+
+    label_url = f"http://example.com/labels/{return_id}.pdf"
     return ReturnResponse(return_id=return_id, status="Submitted", label_url=label_url)
 
 # Generate shipping label
@@ -55,15 +88,15 @@ def create_return(request: ReturnRequest):
 def generate_shipping_label(return_id: str):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT return_id FROM returns WHERE return_id = ?", (return_id,))
+    cursor.execute("SELECT return_id FROM RETURNS WHERE return_id = ?", (return_id,))
     row = cursor.fetchone()
     if row:
         label_url = f"http://example.com/labels/{return_id}.pdf"
         cursor.execute(
-            "INSERT INTO shippinglabels (label_id, return_id, label_url, created_at) VALUES (?, ?, ?, datetime('now'))",
+            "INSERT INTO SHIPPINGLABELS (label_id, return_id, label_url, created_at) VALUES (?, ?, ?, datetime('now'))",
             (str(uuid4()), return_id, label_url)
         )
-        cursor.commit()
+        conn.commit()
         cursor.close()
         conn.close()
         return {"label_url": label_url}
@@ -77,36 +110,30 @@ def generate_shipping_label(return_id: str):
 def get_order(order_id: str):
     conn = get_db_connection()
     cursor = conn.cursor()
+
+    # Fetch order details
     cursor.execute("SELECT order_id, purchase_date FROM ORDERS WHERE order_id = ?", (order_id,))
     order_row = cursor.fetchone()
     if not order_row:
         cursor.close()
         conn.close()
         raise HTTPException(status_code=404, detail="Order not found")  
-    cursor.execute("SELECT item_id, item_name, item_sku FROM order_items WHERE order_id = ?", (order_id,))
+    
+    # Fetch associated items
+    cursor.execute("SELECT item_id, item_name, item_sku FROM ORDER_ITEMS WHERE order_id = ?", (order_id,))
     items = [OrderItem(item_id=row[0], item_name=row[1], item_sku=row[2]) for row in cursor.fetchall()]
     order_response = OrderResponse(order_id=order_row[0], purchase_date=order_row[1], items=items)  
+    
     cursor.close()
     conn.close()
     return order_response
-
-
-# Get all items for an order
-@app.get("/orders/{order_id}/items", response_model=list[OrderItem])
-def get_order_items(order_id: str):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT item_id, item_name, item_sku FROM order_items WHERE order_id = ?", (order_id,))
-    cursor.close()
-    conn.close()
-    return [OrderItem(item_id=row[0], item_name=row[1], item_sku=row[2]) for row in cursor.fetchall()]
 
 # Get return status
 @app.get("/returns/{return_id}", response_model=ReturnResponse)
 def get_return_status(return_id: str):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT return_id, status FROM returns WHERE return_id = ?", (return_id,))
+    cursor.execute("SELECT return_id, status FROM RETURNS WHERE return_id = ?", (return_id,))
     row = cursor.fetchone()
     if row:
         label_url = f"http://example.com/labels/{return_id}.pdf"
@@ -123,7 +150,7 @@ def get_return_status(return_id: str):
 def get_returns_for_order(order_id: str):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT return_id, status FROM returns WHERE order_id = ?", (order_id,))
+    cursor.execute("SELECT return_id, status FROM RETURNS WHERE order_id = ?", (order_id,))
     rows = cursor.fetchall()
     responses = []
     for row in rows:
@@ -138,8 +165,8 @@ def get_returns_for_order(order_id: str):
 def update_return_status(return_id: str, status: str):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("UPDATE returns SET status = ? WHERE return_id = ?", (status, return_id))
-    cursor.commit()
+    cursor.execute("UPDATE RETURNS SET status = ? WHERE return_id = ?", (status, return_id))
+    conn.commit()
     if cursor.rowcount:
         cursor.close()
         conn.close()

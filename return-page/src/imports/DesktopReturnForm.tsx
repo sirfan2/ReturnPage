@@ -147,11 +147,37 @@ function Title() {
   );
 }
 
-function Field() {
-  const [orderNumber, setOrderNumber] = useState("");
-  const [orderValid, setOrderValid] = useState(null);
-  const [checking, setChecking] = useState(false);
-  const [orderDetails, setOrderDetails] = useState(null);
+type OrderItem = {
+  item_name: string;
+  item_id: string;
+};
+
+type OrderDetails = {
+  purchase_date: string;
+  items: OrderItem[];
+};
+
+type FieldProps = {
+  orderNumber: string;
+  setOrderNumber: (value: string) => void;
+  orderValid: boolean | null;
+  setOrderValid: (value: boolean | null) => void;
+  checking: boolean;
+  setChecking: (value: boolean) => void;
+  orderDetails: OrderDetails | null;
+  setOrderDetails: (details: OrderDetails | null) => void;
+};
+
+function Field({
+  orderNumber,
+  setOrderNumber,
+  orderValid,
+  setOrderValid,
+  checking,
+  setChecking,
+  orderDetails,
+  setOrderDetails,
+}: FieldProps) {
 
   const checkOrderNumber = async () => {
     if(!orderNumber) {
@@ -196,36 +222,24 @@ function Field() {
       {orderValid == false && (
         <span style={{ color: "red", fontSize: "14px" }}>Order number not found. Please try again.</span>
       )}
-      {orderValid == true && orderDetails && (
+      {orderValid === true && orderDetails ? (
         <div style={{ marginTop: "8px", fontSize: "14px", color: "green" }}>
           <strong>Order found!</strong><br />
           Purchase Date: {orderDetails.purchase_date}<br />
           Items: {orderDetails.items.map((item:any) => item.item_name).join(", ")}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
 
-function Field1() {
-  const [orderNumber, setOrderNumber] = useState("");
-  const [orders, setOrders] = useState([]);
-  const [selectedItem, setSelectedItem] = useState("");
+type FieldProps1 = {
+  items: OrderItem[];
+  selectedItem: string;
+  setSelectedItem: (value: string) => void;
+}
 
-  useEffect(() => {
-    if (orderNumber) {
-      axios.get('http://localhost:8000/orders/${orderNumber}/items')
-        .then(response => {
-          // Filter orders by order_id 
-          const filtered = response.data.orders.filter(order => String(order[0]) === orderNumber);
-          setOrders(filtered);
-        })
-        .catch(error => console.error(error));
-    } else {
-      setOrders([]);
-    }
-  }, [orderNumber]);
-
+function Field1({ items, selectedItem, setSelectedItem}: FieldProps1) {
   return (
     <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full" data-name="Field">
       <div className="flex flex-col font-['Poppins:SemiBold',_sans-serif] justify-center leading-[0] min-w-full not-italic relative shrink-0 text-[#242426] text-[20px]" style={{ width: "min-content" }}>
@@ -234,12 +248,13 @@ function Field1() {
       <select
         value={selectedItem}
         onChange={e => setSelectedItem(e.target.value)}
-        className="mt-2"
         style={{ minWidth: "220px", height: "40px", borderRadius: "8px", border: "1px solid #d9d9d9", padding: "8px", fontSize: "16px", background: "#fff", color: "#1e1e1e" }}
       >
         <option value="">Select Item</option>
-        {orders.map(order => (
-          <option key={order[0]} value={order[3]}>{order[3]}</option>
+        {items.map(item => (
+          <option key={item.item_id} value={item.item_id}>
+            {item.item_name}
+          </option>
         ))}
       </select>
     </div>
@@ -263,9 +278,14 @@ function ReasonDropdown({ value, onChange }) {
   );
 }
 
-function Field2() {
-  const [reason, setReason] = useState("");
-  const [otherText, setOtherText] = useState("");
+type FieldProps2 = {
+  reason: string;
+  setReason: (value: string) => void;
+  otherText: string;
+  setOtherText: (value: string) => void;
+}
+
+function Field2({ reason, setReason, otherText, setOtherText }: FieldProps2) {
   return (
     <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full" data-name="Field">
       <div className="flex flex-col font-['Poppins:SemiBold',_sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#242426] text-[20px] w-full">
@@ -287,15 +307,39 @@ function Field2() {
   );
 }
 
-function Space() {
+function Space({
+  orderNumber,
+  setOrderNumber,
+  orderValid,
+  setOrderValid,
+  checking,
+  setChecking,
+  orderDetails,
+  setOrderDetails,
+  selectedItem,
+  setSelectedItem,
+  reason,
+  setReason,
+  otherText,
+  setOtherText
+}: FieldProps & FieldProps1 & FieldProps2) {
   return (
     <div className="relative rounded-[8px] shrink-0 w-full" data-name="Space">
       <div aria-hidden="true" className="absolute border border-[#e2e4e5] border-solid inset-0 pointer-events-none rounded-[8px]" />
       <div className="relative size-full">
         <div className="box-border content-stretch flex flex-col gap-8 items-start justify-start p-[32px] relative w-full">
-          <Field />
-          <Field1 />
-          <Field2 />
+          <Field 
+            orderNumber={orderNumber} 
+            setOrderNumber={setOrderNumber} 
+            orderValid={orderValid} 
+            setOrderValid={setOrderValid} 
+            checking={checking} 
+            setChecking={setChecking}
+            orderDetails={orderDetails}
+            setOrderDetails={setOrderDetails}
+          />
+          <Field1 items={orderDetails?.items || []} selectedItem={selectedItem} setSelectedItem={setSelectedItem}/>
+          <Field2 reason={reason} setReason={setReason} otherText={otherText} setOtherText={setOtherText}/>
         </div>
       </div>
     </div>
@@ -326,21 +370,74 @@ function SecondaryButton({ onSubmit }) {
   );
 }
 
-function Step1({ onSubmit }) {
+function Step1() {
+  const [orderNumber, setOrderNumber] = useState("");
+  const [orderValid, setOrderValid] = useState<boolean | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+  const [selectedItem, setSelectedItem] = useState<string>("");
+  const [returnReason, setReturnReason] = useState<string>("");
+  const [otherText, setOtherText] = useState<string>("");
+
+  const handleSubmit = async () => {
+    if (!orderNumber || !selectedItem || !returnReason) {
+      alert("Please complete all required fields before submitting.");
+      return;
+    }
+
+    const reasonText = returnReason === "Other" ? otherText : returnReason;
+
+    const returnData = {
+      order_id: orderNumber,
+      item_id: selectedItem,
+      return_reason: reasonText,
+      return_date: new Date().toISOString().split('T')[0],
+      warehouse_id: null
+    };
+
+    try {
+      const response = await axios.post('http://localhost:8000/returns', returnData);
+      console.log("Return submitted:", response.data);
+      alert("Return submitted successfully!");
+      setReturnReason("");
+      setSelectedItem("");
+      setOrderNumber("");
+      setOrderDetails(null);
+    } catch (error) {
+      console.error("Error submitting return:", error);
+      alert("There was an error submitting your return. Please try again.");
+    }
+  };
+
   return (
     <div className="content-stretch flex flex-col gap-8 items-start justify-start relative shrink-0 w-full" data-name="Step 1">
       <Header />
       <Title />
-      <Space />
-      <SecondaryButton onSubmit={onSubmit} />
+      <Space 
+        orderNumber={orderNumber} 
+        setOrderNumber={setOrderNumber} 
+        orderValid={orderValid} 
+        setOrderValid={setOrderValid} 
+        checking={checking} 
+        setChecking={setChecking}
+        orderDetails={orderDetails}
+        setOrderDetails={setOrderDetails}
+        selectedItem={selectedItem}
+        setSelectedItem={setSelectedItem}
+        reason={returnReason}
+        setReason={setReturnReason}
+        otherText={otherText}
+        setOtherText={setOtherText}
+      />
+      <SecondaryButton onSubmit={handleSubmit} />
     </div>
   );
 }
 
-function Contents1({ onSubmit }) {
+function Contents1({ handleSubmit }) {
   return (
     <div className="box-border content-stretch flex flex-col gap-20 items-start justify-start pb-0 pt-2 px-0 relative shrink-0 w-[1024px]" data-name="Contents">
-      <Step1 onSubmit={onSubmit} />
+      <Step1 handleSubmit={handleSubmit} />
     </div>
   );
 }
