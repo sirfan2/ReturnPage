@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS ORDER_ITEMS (
 CREATE TABLE IF NOT EXISTS RETURNS (
     return_id TEXT PRIMARY KEY,
     order_id TEXT,
+    item_id TEXT NOT NULL,
     return_reason TEXT NOT NULL,
     return_date TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'Pending',
@@ -70,3 +71,8 @@ INSERT INTO WAREHOUSES (name, address, city, state, zip_code, capacity) VALUES
 ('Warehouse A', '123 Main St', 'Springfield', 'IL', 62701, 1000),
 ('Warehouse B', '456 Elm St', 'Madison', 'WI', 53703, 1500),
 ('Warehouse C', '789 Oak St', 'Austin', 'TX', 73301, 2000);
+
+INSERT INTO RETURNS (return_id, order_id, item_id, return_reason, return_date, status, warehouse_id) VALUES
+('return-1', '1001', 'item-1', 'Defective item', '2023-10-15', 'Pending', 1),
+('return-2', '1002', 'item-2', 'Wrong item sent', '2023-10-16', 'Pending', 2),
+('return-3', '1003', 'item-3', 'No longer needed', '2023-10-17', 'Pending', 3);

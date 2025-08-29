@@ -4,7 +4,6 @@ import trackingSvgPaths from "./imports/svg-uwmz3grs3d.ts";
 import ReturnFormPage from './imports/DesktopReturnForm.tsx';
 import ConfirmationPage from './imports/DesktopOrderSelectionPage.tsx';
 import TrackingPage from './imports/DesktopOrderSelectionPage-2-1144.tsx';
-import DesktopReturnForm from './imports/DesktopReturnForm.tsx';
 import axios from 'axios';
 
 function Logo() {
@@ -43,9 +42,8 @@ export default function App() {
       <div className="relative size-full">
         <div className="box-border content-stretch flex items-start justify-between pl-[88px] pr-11 py-11 relative size-full">
             <>
-                {currentPage === 'form' && (
-                    <ReturnFormPage onSubmit={handleFormSubmit} />
-                )}
+                {currentPage === 'form' && <ReturnFormPage onSubmit={handleFormSubmit} />}
+                
                 {currentPage === 'confirmation' && returnData && (
                     <ConfirmationPage returnData={returnData} onTrackReturn={handleTrackReturn} />
                 )}
