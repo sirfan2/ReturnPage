@@ -370,7 +370,7 @@ function SecondaryButton({ onSubmit }) {
   );
 }
 
-function Step1() {
+function Step1({ onSubmit }) {
   const [orderNumber, setOrderNumber] = useState("");
   const [orderValid, setOrderValid] = useState<boolean | null>(null);
   const [checking, setChecking] = useState(false);
@@ -398,7 +398,7 @@ function Step1() {
     try {
       const response = await axios.post('http://localhost:8000/returns', returnData);
       console.log("Return submitted:", response.data);
-      alert("Return submitted successfully!");
+      onSubmit(returnData);
       setReturnReason("");
       setSelectedItem("");
       setOrderNumber("");
@@ -434,10 +434,10 @@ function Step1() {
   );
 }
 
-function Contents1({ handleSubmit }) {
+function Contents1({ onSubmit }) {
   return (
     <div className="box-border content-stretch flex flex-col gap-20 items-start justify-start pb-0 pt-2 px-0 relative shrink-0 w-[1024px]" data-name="Contents">
-      <Step1 handleSubmit={handleSubmit} />
+      <Step1 onSubmit={onSubmit} />
     </div>
   );
 }
