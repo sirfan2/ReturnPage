@@ -19,7 +19,7 @@ function Logo() {
   );
 }
 
-export default function App() {
+function App() {
   const [currentPage, setCurrentPage] = useState('form');
   const [returnData, setReturnData] = useState(null);
 
@@ -42,17 +42,20 @@ export default function App() {
       <div className="relative size-full">
         <div className="box-border content-stretch flex items-start justify-between pl-[88px] pr-11 py-11 relative size-full">
             <>
-                {currentPage === 'form' && <ReturnFormPage onSubmit={handleFormSubmit} />}
-                
-                {currentPage === 'confirmation' && returnData && (
-                    <ConfirmationPage returnData={returnData} onTrackReturn={handleTrackReturn} />
-                )}
-                {currentPage === 'tracking' && returnData && (
-                    <TrackingPage returnData={returnData} onBackToHome={handleBackToHome} />
-                )}
+              {currentPage === 'form' && (
+                <ReturnFormPage onSubmit={handleFormSubmit} />
+              )}
+              {currentPage === 'confirmation' && returnData && (
+                <ConfirmationPage returnData={returnData} onBackToHome={handleBackToHome} />
+              )}
+              {currentPage === 'tracking' && (
+                <TrackingPage onBackToHome={handleBackToHome} />
+              )}
             </>
         </div>
       </div>
     </div>
   );
 }
+
+export default App;

@@ -3,7 +3,7 @@ export function ConfirmationPage({ returnData, onTrackReturn }) {
     <div className="bg-[#ffffff] relative size-full" data-name="Desktop / ReturnForm">
       <div className="relative size-full">
         <div className="box-border content-stretch flex items-start justify-between pl-[88px] pr-11 py-11 relative size-full">
-          <Contents onTrackReturn={onTrackReturn} />
+          <Contents returnData={returnData} onTrackReturn={onTrackReturn} />
         </div>
       </div>
     </div>
@@ -142,39 +142,39 @@ function Title() {
   );
 }
 
-function Field() {
+function Field({ orderNumber }) {
   return (
     <div className="content-stretch flex flex-col gap-0.5 items-start justify-start relative shrink-0 w-full" data-name="Field">
       <div className="flex flex-col font-['Poppins:SemiBold',_sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#242731] text-[20px] w-full">
         <p className="leading-[28px]">
           <span>{`Order Number: `}</span>
-          <span className="font-['Poppins:Regular',_sans-serif] not-italic">{`{order_number}`}</span>
+          <span className="font-['Poppins:Regular',_sans-serif] not-italic">{orderNumber}</span>
         </p>
       </div>
     </div>
   );
 }
 
-function Field1() {
+function Field1({ item }) {
   return (
     <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full" data-name="Field">
       <div className="flex flex-col font-['Poppins:SemiBold',_sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#242426] text-[20px] w-full">
         <p className="leading-[28px]">
           <span>{`Item: `}</span>
-          <span className="font-['Poppins:Regular',_sans-serif] not-italic">{`{item}`}</span>
+          <span className="font-['Poppins:Regular',_sans-serif] not-italic">{item}</span>
         </p>
       </div>
     </div>
   );
 }
 
-function Field2() {
+function Field2({ reason }) {
   return (
     <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full" data-name="Field">
       <div className="flex flex-col font-['Poppins:SemiBold',_sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#242426] text-[20px] w-full">
         <p className="leading-[28px]">
           <span>{`Reason For Return: `}</span>
-          <span className="font-['Poppins:Regular',_sans-serif] not-italic">{`{selected_reason}`}</span>
+          <span className="font-['Poppins:Regular',_sans-serif] not-italic">{reason}</span>
         </p>
       </div>
     </div>
@@ -201,15 +201,15 @@ function Field3() {
   );
 }
 
-function Space() {
+function Space({ returnData}) {
   return (
     <div className="relative rounded-[8px] shrink-0 w-full" data-name="Space">
       <div aria-hidden="true" className="absolute border border-[#e2e4e5] border-solid inset-0 pointer-events-none rounded-[8px]" />
       <div className="relative size-full">
         <div className="box-border content-stretch flex flex-col gap-8 items-start justify-start p-[32px] relative w-full">
-          <Field />
-          <Field1 />
-          <Field2 />
+          <Field orderNumber={returnData?.order_id}/>
+          <Field1 item={returnData?.item_id}/>
+          <Field2 reason={returnData?.return_reason}/>
           <Field3 />
         </div>
       </div>
@@ -228,21 +228,21 @@ function SecondaryButton({ onTrackReturn }) {
   );
 }
 
-function Step1({ onTrackReturn }) {
+function Step1({ returnData, onTrackReturn }) {
   return (
     <div className="content-stretch flex flex-col gap-8 items-start justify-start relative shrink-0 w-full" data-name="Step 1">
       <Header />
       <Title />
-      <Space />
+      <Space returnData={returnData}/>
       <SecondaryButton onTrackReturn={onTrackReturn} />
     </div>
   );
 }
 
-function Contents({ onTrackReturn }) {
+function Contents({ returnData, onTrackReturn }) {
   return (
     <div className="box-border content-stretch flex flex-col gap-20 items-start justify-start pb-0 pt-2 px-0 relative shrink-0 w-[1024px]" data-name="Contents">
-      <Step1 onTrackReturn={onTrackReturn} />
+      <Step1 returnData={returnData} onTrackReturn={onTrackReturn} />
     </div>
   );
 }
@@ -252,7 +252,7 @@ export default function DesktopOrderSelectionPage(props) {
     <div className="bg-[#ffffff] relative size-full" data-name="Desktop / Order Selection Page">
       <div className="relative size-full">
         <div className="box-border content-stretch flex items-start justify-between pl-[88px] pr-11 py-11 relative size-full">
-          <Contents onTrackReturn={props.onTrackReturn} />
+          <Contents returnData={props.returnData} onTrackReturn={props.onTrackReturn} />
         </div>
       </div>
     </div>
