@@ -1,4 +1,18 @@
-export function ConfirmationPage({ returnData, onTrackReturn }) {
+import { useNavigate } from "react-router-dom";
+
+interface ConfirmationPageProps {
+  returnData: {
+    order_id: string;
+    item_id: string;
+    item_name: string;
+    return_reason: string;
+    return_date: string;
+    warehouse_id: string | null;
+  };
+  onTrackReturn: () => void;
+}
+
+export function ConfirmationPage({ returnData, onTrackReturn }: ConfirmationPageProps) {
   return (
     <div className="bg-[#ffffff] relative size-full" data-name="Desktop / ReturnForm">
       <div className="relative size-full">
@@ -14,10 +28,10 @@ function Logo() {
   return (
     <div className="content-stretch flex gap-[13px] items-center justify-start relative shrink-0" data-name="Logo">
       <div className="shrink-0 size-[70px] flex items-center justify-center">
-        <img src="/logo.png" alt="Logo" className="bg-center bg-cover bg-no-repeat w-full h-full" />
+        <img src="/logo192.png" alt="Logo" className="bg-center bg-cover bg-no-repeat w-full h-full" />
       </div>
       <div className="font-['Raleway:Bold',_sans-serif] font-bold leading-[0] relative shrink-0 text-[#242731] text-[16px] text-nowrap tracking-[1px] uppercase">
-        <p className="leading-[18px] whitespace-pre">{`RETURN STACK `}</p>
+        <p className="leading-[18px] whitespace-pre">{`RETURN PAGE `}</p>
       </div>
     </div>
   );
@@ -142,7 +156,7 @@ function Title() {
   );
 }
 
-function Field({ orderNumber }) {
+function Field({ orderNumber }: { orderNumber: string }) {
   return (
     <div className="content-stretch flex flex-col gap-0.5 items-start justify-start relative shrink-0 w-full" data-name="Field">
       <div className="flex flex-col font-['Poppins:SemiBold',_sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#242731] text-[20px] w-full">
@@ -155,7 +169,7 @@ function Field({ orderNumber }) {
   );
 }
 
-function Field1({ item }) {
+function Field1({ item }: { item: string }) {
   return (
     <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full" data-name="Field">
       <div className="flex flex-col font-['Poppins:SemiBold',_sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#242426] text-[20px] w-full">
@@ -168,7 +182,7 @@ function Field1({ item }) {
   );
 }
 
-function Field2({ reason }) {
+function Field2({ reason }: { reason: string }) {
   return (
     <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full" data-name="Field">
       <div className="flex flex-col font-['Poppins:SemiBold',_sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#242426] text-[20px] w-full">
@@ -201,14 +215,14 @@ function Field3() {
   );
 }
 
-function Space({ returnData}) {
+function Space({ returnData}: { returnData: { order_id: string; item_id: string; item_name: string; return_reason: string; return_date: string; warehouse_id: string | null; }}) {
   return (
     <div className="relative rounded-[8px] shrink-0 w-full" data-name="Space">
       <div aria-hidden="true" className="absolute border border-[#e2e4e5] border-solid inset-0 pointer-events-none rounded-[8px]" />
       <div className="relative size-full">
         <div className="box-border content-stretch flex flex-col gap-8 items-start justify-start p-[32px] relative w-full">
           <Field orderNumber={returnData?.order_id}/>
-          <Field1 item={returnData?.item_id}/>
+          <Field1 item={returnData?.item_name}/>
           <Field2 reason={returnData?.return_reason}/>
           <Field3 />
         </div>
@@ -217,7 +231,7 @@ function Space({ returnData}) {
   );
 }
 
-function SecondaryButton({ onTrackReturn }) {
+function SecondaryButton({ onTrackReturn }: { onTrackReturn: () => void }) {
   return (
     <div className="bg-[#ffffff] box-border content-stretch flex gap-2 h-12 items-center justify-center pl-8 pr-6 py-0 relative rounded-[4px] shrink-0" data-name="Secondary button">
       <div aria-hidden="true" className="absolute border border-[#bbbfc1] border-solid inset-0 pointer-events-none rounded-[4px]" />
@@ -228,7 +242,7 @@ function SecondaryButton({ onTrackReturn }) {
   );
 }
 
-function Step1({ returnData, onTrackReturn }) {
+function Step1({ returnData, onTrackReturn }: { returnData: { order_id: string; item_id: string; item_name: string; return_reason: string; return_date: string; warehouse_id: string | null; }, onTrackReturn: () => void }) {
   return (
     <div className="content-stretch flex flex-col gap-8 items-start justify-start relative shrink-0 w-full" data-name="Step 1">
       <Header />
@@ -239,7 +253,7 @@ function Step1({ returnData, onTrackReturn }) {
   );
 }
 
-function Contents({ returnData, onTrackReturn }) {
+function Contents({ returnData, onTrackReturn }: { returnData: { order_id: string; item_id: string; item_name: string; return_reason: string; return_date: string; warehouse_id: string | null; }; onTrackReturn: () => void }) {
   return (
     <div className="box-border content-stretch flex flex-col gap-20 items-start justify-start pb-0 pt-2 px-0 relative shrink-0 w-[1024px]" data-name="Contents">
       <Step1 returnData={returnData} onTrackReturn={onTrackReturn} />
@@ -247,7 +261,7 @@ function Contents({ returnData, onTrackReturn }) {
   );
 }
 
-export default function DesktopOrderSelectionPage(props) {
+export default function DesktopOrderSelectionPage(props: ConfirmationPageProps) {
   return (
     <div className="bg-[#ffffff] relative size-full" data-name="Desktop / Order Selection Page">
       <div className="relative size-full">

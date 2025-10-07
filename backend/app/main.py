@@ -129,7 +129,7 @@ def get_order(order_id: str):
     return order_response
 
 # Get return status
-@app.get("/returns/{return_id}", response_model=ReturnResponse)
+@app.get("/returns/{return_id}/status", response_model=ReturnResponse)
 def get_return_status(return_id: str):
     conn = get_db_connection()
     cursor = conn.cursor()
