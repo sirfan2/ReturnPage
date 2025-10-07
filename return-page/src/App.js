@@ -6,19 +6,6 @@ import ConfirmationPage from './imports/DesktopOrderSelectionPage.tsx';
 import TrackingPage from './imports/DesktopOrderSelectionPage-2-1144.tsx';
 import axios from 'axios';
 
-function Logo() {
-  return (
-    <div className="content-stretch flex gap-[13px] items-center justify-start relative shrink-0" data-name="Logo">
-      <div className="shrink-0 size-[70px] flex items-center justify-center">
-        <img src="/logo.png" alt="Logo" className="bg-center bg-cover bg-no-repeat w-full h-full" />
-      </div>
-      <div className="font-['Raleway:Bold',_sans-serif] font-bold leading-[0] relative shrink-0 text-[#242731] text-[16px] text-nowrap tracking-[1px] uppercase">
-        <p className="leading-[18px] whitespace-pre">RETURN STACK</p>
-      </div>
-    </div>
-  );
-}
-
 function App() {
   const [currentPage, setCurrentPage] = useState('form');
   const [returnData, setReturnData] = useState(null);
@@ -46,7 +33,7 @@ function App() {
                 <ReturnFormPage onSubmit={handleFormSubmit} />
               )}
               {currentPage === 'confirmation' && returnData && (
-                <ConfirmationPage returnData={returnData} onBackToHome={handleBackToHome} />
+                <ConfirmationPage returnData={returnData} onTrackReturn={handleTrackReturn} />
               )}
               {currentPage === 'tracking' && (
                 <TrackingPage onBackToHome={handleBackToHome} />

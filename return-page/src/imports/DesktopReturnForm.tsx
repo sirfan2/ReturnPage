@@ -3,7 +3,11 @@ import axios from 'axios';
 import svgPaths from "./svg-729l1g9zk7.ts";
 import returnReasons from '../returnReasons.json';
 
-export default function DesktopReturnForm({ onSubmit }) {
+interface DesktopReturnFormProps {
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+}
+
+export default function DesktopReturnForm({ onSubmit }: DesktopReturnFormProps) {
   return (
     <div className="bg-[#ffffff] relative size-full" data-name="Desktop / ReturnForm">
       <div className="relative size-full">
@@ -19,10 +23,10 @@ function Logo() {
   return (
     <div className="content-stretch flex gap-[13px] items-center justify-start relative shrink-0" data-name="Logo">
       <div className="shrink-0 size-[70px] flex items-center justify-center">
-        <img src="/logo.png" alt="Logo" className="bg-center bg-cover bg-no-repeat w-full h-full" />
+        <img src="/logo192.png" alt="Logo" className="bg-center bg-cover bg-no-repeat w-full h-full" />
       </div>
       <div className="font-['Raleway:Bold',_sans-serif] font-bold leading-[0] relative shrink-0 text-[#242731] text-[16px] text-nowrap tracking-[1px] uppercase">
-        <p className="leading-[18px] whitespace-pre">{`RETURN STACK `}</p>
+        <p className="leading-[18px] whitespace-pre">{`RETURN PAGE `}</p>
       </div>
     </div>
   );
@@ -261,7 +265,7 @@ function Field1({ items, selectedItem, setSelectedItem}: FieldProps1) {
   );
 }
 
-function ReasonDropdown({ value, onChange }) {
+function ReasonDropdown({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   return (
     <select
       value={value}
@@ -358,7 +362,7 @@ function Icon() {
   );
 }
 
-function SecondaryButton({ onSubmit }) {
+function SecondaryButton({ onSubmit }: { onSubmit: () => void }) {
   return (
     <div className="bg-[#ffffff] box-border content-stretch flex gap-2 h-12 items-center justify-center pl-8 pr-6 py-0 relative rounded-[4px] shrink-0" data-name="Secondary button">
       <div aria-hidden="true" className="absolute border border-[#bbbfc1] border-solid inset-0 pointer-events-none rounded-[4px]" />
@@ -370,7 +374,7 @@ function SecondaryButton({ onSubmit }) {
   );
 }
 
-function Step1({ onSubmit }) {
+function Step1({ onSubmit }: { onSubmit: (data: any) => void }) {
   const [orderNumber, setOrderNumber] = useState("");
   const [orderValid, setOrderValid] = useState<boolean | null>(null);
   const [checking, setChecking] = useState(false);
@@ -386,10 +390,12 @@ function Step1({ onSubmit }) {
     }
 
     const reasonText = returnReason === "Other" ? otherText : returnReason;
+    const selectedItemName = orderDetails?.items.find(item => item.item_id === selectedItem)?.item_name || "Unknown Item";
 
     const returnData = {
       order_id: orderNumber,
       item_id: selectedItem,
+      item_name: selectedItemName,
       return_reason: reasonText,
       return_date: new Date().toISOString().split('T')[0],
       warehouse_id: null
@@ -428,13 +434,14 @@ function Step1({ onSubmit }) {
         setReason={setReturnReason}
         otherText={otherText}
         setOtherText={setOtherText}
+        items={orderDetails?.items || []}
       />
       <SecondaryButton onSubmit={handleSubmit} />
     </div>
   );
 }
 
-function Contents1({ onSubmit }) {
+function Contents1({ onSubmit }: { onSubmit: (data: any) => void }) {
   return (
     <div className="box-border content-stretch flex flex-col gap-20 items-start justify-start pb-0 pt-2 px-0 relative shrink-0 w-[1024px]" data-name="Contents">
       <Step1 onSubmit={onSubmit} />
