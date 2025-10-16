@@ -1,10 +1,7 @@
-import { useEffect, useState } from 'react';
-import svgPaths from "./imports/svg-729l1g9zk7.ts";
-import trackingSvgPaths from "./imports/svg-uwmz3grs3d.ts";
-import ReturnFormPage from './imports/DesktopReturnForm.tsx';
-import ConfirmationPage from './imports/DesktopOrderSelectionPage.tsx';
-import TrackingPage from './imports/DesktopOrderSelectionPage-2-1144.tsx';
-import axios from 'axios';
+import { useState } from 'react';
+import ReturnFormPage from './imports/ReturnForm.tsx';
+import ConfirmationPage from './imports/ConfirmationPage.tsx';
+import TrackingPage from './imports/TrackingPage.tsx';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('form');
@@ -16,6 +13,7 @@ function App() {
   };
 
   const handleTrackReturn = () => {
+    if (!returnData) return;
     setCurrentPage('tracking');
   };
 
@@ -35,8 +33,8 @@ function App() {
               {currentPage === 'confirmation' && returnData && (
                 <ConfirmationPage returnData={returnData} onTrackReturn={handleTrackReturn} />
               )}
-              {currentPage === 'tracking' && (
-                <TrackingPage onBackToHome={handleBackToHome} />
+              {currentPage === 'tracking' && returnData && (
+                <TrackingPage returnData={returnData} onBackToHome={handleBackToHome} />
               )}
             </>
         </div>
