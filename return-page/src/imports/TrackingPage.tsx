@@ -69,11 +69,14 @@ function Contents({ returnData, trackingStatus, loading, setTrackingStatus, onBa
       {/* ---- TEST BUTTTON ---- */}
         <div className="flex flex-col gap-2 ml-10">
           <p className="font-bold">Test Timeline Stages:</p>
-          {testStages.map(stage => (
+          {testStages.map((stage, idx) => (
             <button
               key={stage}
               className="px-4 py-2 border rounded bg-gray-200 hover:bg-gray-300"
-              onClick={() => setTrackingStatus({ status: stage, return_date: returnData?.return_date || '' })}
+              onClick={() => {
+                console.log('Test button clicked', { stage, idx });
+                setTrackingStatus({ status: stage, return_date: returnData?.return_date || '' });
+              }}
             >
               {stage}
             </button>
@@ -276,15 +279,16 @@ function Timeline ({ trackingStatus, loading }: any) {
   }
 
   return (
-    <div className="w-full mt-6 relative flex flex-col items-center">
+    <div className="w-full mt-6 relative flex flex-col items-center justify-center">
       {/* Combined container so lines and circles share stacking context */}
       <div className="relative w-full h-12 flex items-center" style={{ minHeight: 48 }}>
-        {/* Gray base line (centered vertically) */}
-        <div className="absolute left-0 right-0 h-1 bg-gray-300 rounded" style={{ top: '50%', transform: 'translateY(-50%)', zIndex: 1 }} />
-        {/* Green progress line (above base, below circles) - use left/right so % works reliably */}
+        {/* Gray base line (full width) */}
+        <div className="absolute left-0 right-0 h-2 bg-gray-300 rounded-full" style={{ top: '50%', transform: 'translateY(-50%)', zIndex: 1 }} />
+        {/* Green progress line (above base, below circles) - width based on progress */}
         <div
-          className="absolute h-1 bg-green-500 rounded"
-          style={{ left: 0, right: `${100 - progress}%`, top: '50%', transform: 'translateY(-50%)', zIndex: 2, transition: 'right 300ms ease' }}
+          className="absolute h-2 rounded-full shadow-sm"
+          style={{ left: 0, width: `${progress}%`, background: 'linear-gradient(90deg, #16a34a 0%, #22c55e 100%)', top: '50%', transform: 'translateY(-50%)', zIndex: 2, transition: 'width 300ms ease', border: progress > 0 ? '1px solid rgba(0,128,0,0.18)' : 'none' }}
+          aria-hidden="true"
         />
 
         {/* Circles and labels (absolutely positioned over the line) */}
@@ -297,7 +301,7 @@ function Timeline ({ trackingStatus, loading }: any) {
             <div key={stage} className="flex flex-col items-center" style={{ alignItems: 'center' }}>
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  completed ? 'bg-green-500' : active ? 'bg-blue-500' : 'bg-gray-400'
+                  completed ? 'bg-green-600' : active ? 'bg-blue-500' : 'bg-gray-400'
                 }`}
                 style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.08)' }}
               >
